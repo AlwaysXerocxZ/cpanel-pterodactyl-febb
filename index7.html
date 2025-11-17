@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Panel Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a6bff;
+            --secondary-color: #f8f9fa;
+            --accent-color: #3a56d4;
+            --text-color: #2d3748;
+            --light-text: #718096;
+            --white: #ffffff;
+            --success-color: #48bb78;
+            --warning-color: #ed8936;
+            --error-color: #f56565;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f7fafc;
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Security Key Screen */
+        .security-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(-45deg, #e0f2fe, #f0fdf4, #eff6ff, #f5f3ff);
+            background-size: 400% 400%;
+            animation: gradientBG 12s ease infinite;
+            position: relative;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .security-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            transform: translateY(0) scale(1);
+            opacity: 1;
+            transition: var(--transition);
+            animation: fadeInUp 0.6s ease, pulse 2s infinite 1s;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 2;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .security-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(74, 107, 255, 0.1),
+                rgba(74, 107, 255, 0.05),
+                transparent
+            );
+            transform: rotate(30deg);
+            z-index: -1;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(74, 107, 255, 0.2); }
+            70% { box-shadow: 0 0 0 15px rgba(74, 107, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(74, 107, 255, 0); }
+        }
+
+        .security-box.hidden {
+            transform: translateY(-30px) scale(0.95);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .security-box h1 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.8rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .security-box h1::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 3px;
+            animation: underlineGrow 0.8s ease-out;
+        }
+
+        @keyframes underlineGrow {
+            0% { width: 0; }
+            100% { width: 60px; }
+        }
+
+        .security-box p {
+            color: var(--light-text);
+            margin-bottom: 2rem;
+            text-align: center;
+            font-size: 0.95rem;
+            animation: fadeIn 1s ease;
+        }
+
+        .form-group {
+            margin-bottom: 1.8rem;
+            position: relative;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.6rem;
+            color: var(--text-color);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.85rem 1.2rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.2);
+        }
+
+        .form-control::placeholder {
+            color: #a0aec0;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 42px;
+            cursor: pointer;
+            color: var(--light-text);
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .password-toggle:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: var(--primary-color);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 1rem 1.8rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+            width: 100%;
+            text-align: center;
+            gap: 10px;
+            box-shadow: 0 4px 10px rgba(74, 107, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .btn:hover {
+            background: var(--accent-color);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(74, 107, 255, 0.4);
+        }
+
+        .btn:hover::after {
+            left: 100%;
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn i {
+            transition: var(--transition);
+        }
+
+        .btn:hover i {
+            transform: translateX(3px);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            box-shadow: 0 4px 10px rgba(72, 187, 120, 0.3);
+        }
+
+        .btn-success:hover {
+            background: #3d9e68;
+            box-shadow: 0 8px 20px rgba(72, 187, 120, 0.4);
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            box-shadow: 0 4px 10px rgba(237, 137, 54, 0.3);
+        }
+
+        .btn-warning:hover {
+            background: #e07c2e;
+            box-shadow: 0 8px 20px rgba(237, 137, 54, 0.4);
+        }
+
+        .btn-danger {
+            background: var(--error-color);
+            box-shadow: 0 4px 10px rgba(245, 101, 101, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: #e05353;
+            box-shadow: 0 8px 20px rgba(245, 101, 101, 0.4);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: none;
+            padding: 2rem 0;
+            animation: fadeIn 0.6s ease;
+            position: relative;
+        }
+
+        .main-content.active {
+            display: block;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            display: inline-block;
+            position: relative;
+        }
+
+        .header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--primary-color);
+            border-radius: 4px;
+            animation: underlineGrow 0.8s ease-out;
+        }
+
+        .header p {
+            color: var(--light-text);
+            font-size: 1.1rem;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.8rem;
+            font-weight: 500;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 1.8rem;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .tab-btn {
+            padding: 0.85rem 1.8rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--light-text);
+            position: relative;
+            transition: var(--transition);
+            border-radius: 8px 8px 0 0;
+            margin-right: 5px;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-color);
+            background: rgba(74, 107, 255, 0.05);
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 3px 3px 0 0;
+            animation: underlineGrow 0.4s ease-out;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Server List */
+        .server-list {
+            margin-bottom: 1.8rem;
+        }
+
+        .server-list h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .server-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: var(--white);
+            border-radius: 8px;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .server-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .server-info {
+            flex: 1;
+        }
+
+        .server-info h4 {
+            color: var(--text-color);
+            margin-bottom: 0.3rem;
+        }
+
+        .server-info p {
+            color: var(--light-text);
+            font-size: 0.85rem;
+        }
+
+        .server-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .server-btn {
+            padding: 0.5rem 0.8rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+        }
+
+        .server-btn.view {
+            background: rgba(74, 107, 255, 0.1);
+            color: var(--primary-color);
+        }
+
+        .server-btn.view:hover {
+            background: rgba(74, 107, 255, 0.2);
+        }
+
+        .server-btn.delete {
+            background: rgba(245, 101, 101, 0.1);
+            color: var(--error-color);
+        }
+
+        .server-btn.delete:hover {
+            background: rgba(245, 101, 101, 0.2);
+        }
+
+        /* Delete Confirmation Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-header h3 {
+            color: var(--error-color);
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Resource Selection */
+        .resource-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 1.8rem;
+        }
+
+        .resource-option {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            position: relative;
+            background: var(--white);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .resource-option:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .resource-option.selected {
+            border-color: var(--primary-color);
+            background-color: #f0f4ff;
+            box-shadow: 0 0 0 2px rgba(74, 107, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .resource-option h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .resource-option .specs {
+            font-size: 0.8rem;
+            color: var(--light-text);
+            margin-top: 0.8rem;
+        }
+
+        /* Result Section */
+        .result-section {
+            display: none;
+        }
+
+        .result-section.active {
+            display: block;
+        }
+
+        .credentials {
+            background: #f0f4ff;
+            padding: 1.8rem;
+            border-radius: 12px;
+            margin-top: 1.8rem;
+            border: 1px solid rgba(74, 107, 255, 0.1);
+        }
+
+        .credentials h3 {
+            color: var(--primary-color);
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+        }
+
+        .credential-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.85rem;
+            background: var(--white);
+            padding: 0.85rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .credential-item strong {
+            min-width: 100px;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .credential-item span {
+            flex: 1;
+            word-break: break-all;
+            padding: 0 1rem;
+        }
+
+        .credential-item .copy-btn {
+            background: var(--secondary-color);
+            border: none;
+            padding: 0.6rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--light-text);
+        }
+
+        .credential-item .copy-btn:hover {
+            background: #e2e8f0;
+            color: var(--primary-color);
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.2rem;
+            margin-top: 1.8rem;
+        }
+
+        /* Loader */
+        .loader {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .loader.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.2rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader p {
+            color: var(--light-text);
+            font-size: 1rem;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: var(--text-color);
+            color: var(--white);
+            padding: 1.2rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 350px;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--success-color);
+        }
+
+        .toast.error {
+            background: var(--error-color);
+        }
+
+        .toast i {
+            font-size: 1.2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .resource-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .security-box {
+                padding: 1.8rem;
+                margin: 0 1.2rem;
+            }
+            
+            .tab-buttons {
+                overflow-x: auto;
+                white-space: nowrap;
+                padding-bottom: 8px;
+            }
+            
+            .tab-btn {
+                padding: 0.75rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+            }
+            
+            .server-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .server-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Security Key Screen -->
+    <div class="security-screen" id="securityScreen">
+        <div class="security-box" id="securityBox">
+            <h1><i class="fas fa-key"></i> Access Portal</h1>
+            <p>Enter your secure access key to continue</p>
+            <form id="securityForm">
+                <div class="form-group">
+                    <label for="securityKey">Access Key</label>
+                    <input type="password" id="securityKey" class="form-control" placeholder="Enter your access key" required>
+                    <button type="button" class="password-toggle" id="togglePassword">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <button type="submit" class="btn">
+                    <i class="fas fa-unlock-alt"></i> Unlock Portal
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container main-content" id="mainContent">
+        <div class="header">
+            <h1><i class="fas fa-cloud"></i> Cloud Panel</h1>
+            <p>Manage your cloud resources</p>
+        </div>
+
+        <div class="card">
+            <div class="tab-buttons">
+                <button class="tab-btn active" data-tab="userPanel">User Panel</button>
+                <button class="tab-btn" data-tab="adminPanel">Admin Panel</button>
+                <button class="tab-btn" data-tab="serverPanel">Server List</button>
+                <button class="tab-btn" data-tab="adminManagement">Admin Management</button>
+            </div>
+
+            <!-- User Panel Tab -->
+            <div class="tab-content active" id="userPanel">
+                <h2><i class="fas fa-user"></i> Create User Panel</h2>
+                <form id="panelForm">
+                    <div class="form-group">
+                        <label for="userKey">User Creation Key</label>
+                        <input type="password" id="userKey" class="form-control" placeholder="Enter user creation key" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" class="form-control" placeholder="Enter username" required>
+                    </div>
+
+                    <h3 style="margin: 1.5rem 0 1rem;">Resource Allocation</h3>
+                    <div class="resource-options" id="resourceOptions">
+                        <!-- Options will be generated by JavaScript -->
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn" id="createBtn">
+                            <i class="fas fa-cloud-upload-alt"></i> Create Panel
+                        </button>
+                    </div>
+                </form>
+
+                <div class="loader" id="loader">
+                    <div class="spinner"></div>
+                    <p>Creating your panel...</p>
+                </div>
+
+                <div class="result-section" id="resultSection">
+                    <div class="credentials">
+                        <h3><i class="fas fa-check-circle"></i> Panel Created!</h3>
+                        
+                        <div class="credential-item">
+                            <strong>Username:</strong>
+                            <span id="resultUsername"></span>
+                            <button class="copy-btn" data-target="resultUsername">
+                                <i class="far fa-copy"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="credential-item">
+                            <strong>Email:</strong>
+                            <span id="resultEmail"></span>
+                            <button class="copy-btn" data-target="resultEmail">
+                                <i class="far fa-copy"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="credential-item">
+                            <strong>Password:</strong>
+                            <span id="resultPassword"></span>
+                            <button class="copy-btn" data-target="resultPassword">
+                                <i class="far fa-copy"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="credential-item">
+                            <strong>Panel URL:</strong>
+                            <span id="panelUrl"></span>
+                            <button class="copy-btn" data-target="panelUrl">
+                                <i class="far fa-copy"></i>
+                            </button>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="btn btn-success" id="loginBtn">
+                                <i class="fas fa-sign-in-alt"></i> Login Now
+                            </button>
+                            <button class="btn btn-warning" id="copyAllBtn">
+                                <i class="fas fa-copy"></i> Copy All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Panel Tab -->
+            <div class="tab-content" id="adminPanel">
+                <h2><i class="fas fa-user-shield"></i> Create Admin Panel</h2>
+                <form id="adminForm">
+                    <div class="form-group">
+                        <label for="adminKey">Admin Creation Key</label>
+                        <input type="password" id="adminKey" class="form-control" placeholder="Enter admin creation key" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="adminUsername">Admin Username</label>
+                        <input type="text" id="adminUsername" class="form-control" placeholder="Enter admin username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-danger" id="createAdminBtn">
+                            <i class="fas fa-user-cog"></i> Create Admin
+                        </button>
+                    </div>
+                </form>
+
+                <div class="loader" id="adminLoader">
+                    <div class="spinner"></div>
+                    <p>Creating admin privileges...</p>
+                </div>
+
+                <div class="result-section" id="adminResultSection">
+                    <div class="credentials">
+                        <h3><i class="fas fa-check-circle"></i> Admin Created!</h3>
+                        
+                        <div class="credential-item">
+                            <strong>Username:</strong>
+                            <span id="adminResultUsername"></span>
+                            <button class="copy-btn" data-target="adminResultUsername">
+                                <i class="far fa-copy"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="credential-item">
+                            <strong>Email:</strong>
+                            <span id="adminResultEmail"></span>
+                            <button class="copy-btn" data-target="adminResultEmail">
+                                <i class="far fa-copy"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="credential-item">
+                            <strong>Password:</strong>
+                            <span id="adminResultPassword"></span>
+                            <button class="copy-btn" data-target="adminResultPassword">
+                                <i class="far fa-copy"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="credential-item">
+                            <strong>Admin URL:</strong>
+                            <span id="adminPanelUrl"></span>
+                            <button class="copy-btn" data-target="adminPanelUrl">
+                                <i class="far fa-copy"></i>
+                            </button>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="btn btn-success" id="adminLoginBtn">
+                                <i class="fas fa-sign-in-alt"></i> Admin Login
+                            </button>
+                            <button class="btn btn-warning" id="adminCopyAllBtn">
+                                <i class="fas fa-copy"></i> Copy All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Server List Tab -->
+            <div class="tab-content" id="serverPanel">
+                <h2><i class="fas fa-server"></i> Server Management</h2>
+                
+                <div class="form-group">
+                    <label for="serverListKey">Server List Key</label>
+                    <input type="password" id="serverListKey" class="form-control" placeholder="Enter server list key" required>
+                </div>
+                
+                <button class="btn" id="loadServersBtn">
+                    <i class="fas fa-sync-alt"></i> Load Server List
+                </button>
+
+                <div class="loader" id="serverLoader">
+                    <div class="spinner"></div>
+                    <p>Loading server information...</p>
+                </div>
+
+                <div class="server-list" id="serverListContainer" style="margin-top: 2rem; display: none;">
+                    <h3><i class="fas fa-list"></i> Active Servers</h3>
+                    <div id="serversContainer">
+                        <!-- Server list will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Management Tab -->
+            <div class="tab-content" id="adminManagement">
+                <h2><i class="fas fa-users-cog"></i> Admin Management</h2>
+                
+                <div class="form-group">
+                    <label for="adminManagementKey">Admin Management Key</label>
+                    <input type="password" id="adminManagementKey" class="form-control" placeholder="Enter admin management key" required>
+                </div>
+                
+                <button class="btn btn-danger" id="loadAdminsBtn">
+                    <i class="fas fa-users"></i> Load Admin List
+                </button>
+
+                <div class="loader" id="adminManagementLoader">
+                    <div class="spinner"></div>
+                    <p>Loading admin information...</p>
+                </div>
+
+                <div class="server-list" id="adminListContainer" style="margin-top: 2rem; display: none;">
+                    <h3><i class="fas fa-users"></i> Admin Users</h3>
+                    <div id="adminsContainer">
+                        <!-- Admin list will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-exclamation-triangle" style="color: var(--error-color);"></i>
+                <h3>Confirm Deletion</h3>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this server? This action cannot be undone.</p>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label for="deleteKey">Enter Security Key to Confirm</label>
+                    <input type="password" id="deleteKey" class="form-control" placeholder="Enter security key" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-warning" id="cancelDeleteBtn">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash"></i> Delete Server
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Admin Confirmation Modal -->
+    <div class="modal" id="deleteAdminModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-exclamation-triangle" style="color: var(--error-color);"></i>
+                <h3>Confirm Admin Deletion</h3>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this admin user? This action cannot be undone.</p>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label for="deleteAdminKey">Enter Management Key to Confirm</label>
+                    <input type="password" id="deleteAdminKey" class="form-control" placeholder="Enter management key" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-warning" id="cancelDeleteAdminBtn">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button class="btn btn-danger" id="confirmDeleteAdminBtn">
+                    <i class="fas fa-trash"></i> Delete Admin
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Configuration
+        const config = {
+            ACCESS_KEY: "CLOUD@ACCESS", // Main access key
+            USER_CREATION_KEY: "USER@CREATE", // Key for creating user panels
+            ADMIN_CREATION_KEY: "ADMIN@CREATE", // Key for creating admin panels
+            SERVER_LIST_KEY: "SERVER@LIST", // Key for viewing server list
+            ADMIN_MANAGEMENT_KEY: "ADMIN@MANAGE", // Key for managing admins
+            PANEL_DOMAIN: "https://ikyyprivate.pterodaytl.my.id",
+            PLTA_KEY: "ptla_M19fbvb3qwGsPLy9XLIiEYltDucVKVzm4FS4wzwBoY9",
+            USER_API_ENDPOINT: "https://api-docs-nvidia2.vercel.app/pterodactyl/addpanel",
+            ADMIN_API_ENDPOINT: "https://api-docs-nvidia2.vercel.app/pterodactyl/addadmin",
+            LIST_SERVER_ENDPOINT: "https://api-docs-nvidia2.vercel.app/pterodactyl/listserver",
+            DELETE_SERVER_ENDPOINT: "https://api-docs-nvidia2.vercel.app/pterodactyl/delpanel",
+            LIST_ADMIN_ENDPOINT: "https://api-docs-nvidia2.vercel.app/pterodactyl/listadmin",
+            DELETE_ADMIN_ENDPOINT: "https://api-docs-nvidia2.vercel.app/pterodactyl/deladmin"
+        };
+
+        // Resource options
+        const resourceOptions = [
+            { name: "1GB", ram: "1000", disk: "1000", cpu: "40" },
+            { name: "2GB", ram: "2000", disk: "1000", cpu: "60" },
+            { name: "3GB", ram: "3000", disk: "2000", cpu: "80" },
+            { name: "4GB", ram: "4000", disk: "2000", cpu: "100" },
+            { name: "5GB", ram: "5000", disk: "3000", cpu: "120" },
+            { name: "6GB", ram: "6000", disk: "3000", cpu: "140" },
+            { name: "7GB", ram: "7000", disk: "4000", cpu: "160" },
+            { name: "8GB", ram: "8000", disk: "4000", cpu: "180" },
+            { name: "9GB", ram: "9000", disk: "5000", cpu: "200" },
+            { name: "10GB", ram: "10000", disk: "5000", cpu: "220" },
+            { name: "Unlimited", ram: "0", disk: "0", cpu: "0" }
+        ];
+
+        // DOM Elements
+        const securityScreen = document.getElementById('securityScreen');
+        const securityBox = document.getElementById('securityBox');
+        const securityForm = document.getElementById('securityForm');
+        const togglePassword = document.getElementById('togglePassword');
+        const mainContent = document.getElementById('mainContent');
+        
+        // Tab elements
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // User panel elements
+        const panelForm = document.getElementById('panelForm');
+        const userKeyInput = document.getElementById('userKey');
+        const resourceOptionsContainer = document.getElementById('resourceOptions');
+        const loader = document.getElementById('loader');
+        const resultSection = document.getElementById('resultSection');
+        const createBtn = document.getElementById('createBtn');
+        const loginBtn = document.getElementById('loginBtn');
+        const copyAllBtn = document.getElementById('copyAllBtn');
+        
+        // Admin panel elements
+        const adminForm = document.getElementById('adminForm');
+        const adminKeyInput = document.getElementById('adminKey');
+        const adminLoader = document.getElementById('adminLoader');
+        const adminResultSection = document.getElementById('adminResultSection');
+        const createAdminBtn = document.getElementById('createAdminBtn');
+        const adminLoginBtn = document.getElementById('adminLoginBtn');
+        const adminCopyAllBtn = document.getElementById('adminCopyAllBtn');
+        
+        // Server panel elements
+        const serverListKeyInput = document.getElementById('serverListKey');
+        const loadServersBtn = document.getElementById('loadServersBtn');
+        const serversContainer = document.getElementById('serversContainer');
+        const serverLoader = document.getElementById('serverLoader');
+        const serverListContainer = document.getElementById('serverListContainer');
+        
+        // Admin management elements
+        const adminManagementKeyInput = document.getElementById('adminManagementKey');
+        const loadAdminsBtn = document.getElementById('loadAdminsBtn');
+        const adminManagementLoader = document.getElementById('adminManagementLoader');
+        const adminListContainer = document.getElementById('adminListContainer');
+        const adminsContainer = document.getElementById('adminsContainer');
+        
+        // Modal elements
+        const deleteModal = document.getElementById('deleteModal');
+        const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        const deleteKeyInput = document.getElementById('deleteKey');
+        
+        const deleteAdminModal = document.getElementById('deleteAdminModal');
+        const cancelDeleteAdminBtn = document.getElementById('cancelDeleteAdminBtn');
+        const confirmDeleteAdminBtn = document.getElementById('confirmDeleteAdminBtn');
+        const deleteAdminKeyInput = document.getElementById('deleteAdminKey');
+        
+        const toast = document.getElementById('toast');
+
+        // Selected resources
+        let selectedResources = resourceOptions[0];
+        let currentServerToDelete = null;
+        let currentAdminToDelete = null;
+
+        // Generate resource options
+        function generateResourceOptions() {
+            resourceOptionsContainer.innerHTML = '';
+            
+            resourceOptions.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'resource-option';
+                optionElement.innerHTML = `
+                    <h3>${option.name}</h3>
+                    <div class="specs">
+                        RAM: ${option.ram}MB<br>
+                        Disk: ${option.disk}MB<br>
+                        CPU: ${option.cpu}%
+                    </div>
+                `;
+                
+                if (index === 0) {
+                    optionElement.classList.add('selected');
+                }
+                
+                optionElement.addEventListener('click', () => {
+                    document.querySelectorAll('.resource-option').forEach(el => {
+                        el.classList.remove('selected');
+                    });
+                    optionElement.classList.add('selected');
+                    selectedResources = option;
+                });
+                
+                resourceOptionsContainer.appendChild(optionElement);
+            });
+        }
+
+        // Load server list
+        async function loadServers() {
+            const key = serverListKeyInput.value.trim();
+            
+            if (key !== config.SERVER_LIST_KEY) {
+                showToast('Invalid server list key', 'error');
+                return;
+            }
+            
+            serverLoader.classList.add('active');
+            serversContainer.innerHTML = '';
+            
+            try {
+                const apiUrl = new URL(config.LIST_SERVER_ENDPOINT);
+                apiUrl.searchParams.append('domain', config.PANEL_DOMAIN);
+                apiUrl.searchParams.append('plta', config.PLTA_KEY);
+                
+                const response = await fetch(apiUrl.toString());
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.status && data.servers && data.servers.length > 0) {
+                    data.servers.forEach(server => {
+                        const serverElement = document.createElement('div');
+                        serverElement.className = 'server-item';
+                        serverElement.innerHTML = `
+                            <div class="server-info">
+                                <h4>${server.name}</h4>
+                                <p>ID: ${server.id} • UUID: ${server.uuid}</p>
+                            </div>
+                            <div class="server-actions">
+                                <button class="server-btn view" data-id="${server.id}">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="server-btn delete" data-id="${server.id}" data-uuid="${server.uuid}">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        `;
+                        
+                        // Add click handler for view button
+                        const viewBtn = serverElement.querySelector('.server-btn.view');
+                        viewBtn.addEventListener('click', () => {
+                            window.open(`${config.PANEL_DOMAIN}/server/${server.identifier}`, '_blank');
+                        });
+                        
+                        // Add click handler for delete button
+                        const deleteBtn = serverElement.querySelector('.server-btn.delete');
+                        deleteBtn.addEventListener('click', () => {
+                            currentServerToDelete = {
+                                id: server.id,
+                                uuid: server.uuid,
+                                name: server.name
+                            };
+                            deleteModal.classList.add('active');
+                        });
+                        
+                        serversContainer.appendChild(serverElement);
+                    });
+                    serverListContainer.style.display = 'block';
+                    showToast('Server list loaded successfully', 'success');
+                } else {
+                    serversContainer.innerHTML = '<p>No servers found</p>';
+                    serverListContainer.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading servers:', error);
+                serversContainer.innerHTML = '<p>Error loading server list</p>';
+                showToast('Failed to load server list', 'error');
+            } finally {
+                serverLoader.classList.remove('active');
+            }
+        }
+
+        // Load admin list
+        async function loadAdmins() {
+            const key = adminManagementKeyInput.value.trim();
+            
+            if (key !== config.ADMIN_MANAGEMENT_KEY) {
+                showToast('Invalid admin management key', 'error');
+                return;
+            }
+            
+            adminManagementLoader.classList.add('active');
+            adminsContainer.innerHTML = '';
+            
+            try {
+                const apiUrl = new URL(config.LIST_ADMIN_ENDPOINT);
+                apiUrl.searchParams.append('domain', config.PANEL_DOMAIN);
+                apiUrl.searchParams.append('plta', config.PLTA_KEY);
+                
+                const response = await fetch(apiUrl.toString());
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.status && data.admins && data.admins.length > 0) {
+                    data.admins.forEach(admin => {
+                        const adminElement = document.createElement('div');
+                        adminElement.className = 'server-item';
+                        adminElement.innerHTML = `
+                            <div class="server-info">
+                                <h4>${admin.attributes.username}</h4>
+                                <p>ID: ${admin.attributes.id} • Email: ${admin.attributes.email}</p>
+                            </div>
+                            <div class="server-actions">
+                                <button class="server-btn delete" data-id="${admin.attributes.id}">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        `;
+                        
+                        // Add click handler for delete button
+                        const deleteBtn = adminElement.querySelector('.server-btn.delete');
+                        deleteBtn.addEventListener('click', () => {
+                            currentAdminToDelete = {
+                                id: admin.attributes.id,
+                                username: admin.attributes.username,
+                                email: admin.attributes.email
+                            };
+                            deleteAdminModal.classList.add('active');
+                        });
+                        
+                        adminsContainer.appendChild(adminElement);
+                    });
+                    adminListContainer.style.display = 'block';
+                    showToast('Admin list loaded successfully', 'success');
+                } else {
+                    adminsContainer.innerHTML = '<p>No admin users found</p>';
+                    adminListContainer.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading admins:', error);
+                adminsContainer.innerHTML = '<p>Error loading admin list</p>';
+                showToast('Failed to load admin list', 'error');
+            } finally {
+                adminManagementLoader.classList.remove('active');
+            }
+        }
+
+        // Delete server
+        async function deleteServer(serverId, securityKey) {
+            if (securityKey !== config.SERVER_LIST_KEY) {
+                showToast('Invalid security key', 'error');
+                return false;
+            }
+            
+            try {
+                const apiUrl = new URL(config.DELETE_SERVER_ENDPOINT);
+                apiUrl.searchParams.append('domain', config.PANEL_DOMAIN);
+                apiUrl.searchParams.append('plta', config.PLTA_KEY);
+                apiUrl.searchParams.append('id', serverId);
+                
+                const response = await fetch(apiUrl.toString());
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.status) {
+                    showToast(`Server ${serverId} deleted successfully`, 'success');
+                    return true;
+                } else {
+                    throw new Error(data.message || 'Unknown error deleting server');
+                }
+            } catch (error) {
+                console.error('Error deleting server:', error);
+                showToast(`Failed to delete server: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // Delete admin
+        async function deleteAdmin(adminId, managementKey) {
+            if (managementKey !== config.ADMIN_MANAGEMENT_KEY) {
+                showToast('Invalid management key', 'error');
+                return false;
+            }
+            
+            try {
+                const apiUrl = new URL(config.DELETE_ADMIN_ENDPOINT);
+                apiUrl.searchParams.append('domain', config.PANEL_DOMAIN);
+                apiUrl.searchParams.append('plta', config.PLTA_KEY);
+                apiUrl.searchParams.append('id', adminId);
+                
+                const response = await fetch(apiUrl.toString());
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.status) {
+                    showToast(`Admin ${adminId} deleted successfully`, 'success');
+                    return true;
+                } else {
+                    throw new Error(data.message || 'Unknown error deleting admin');
+                }
+            } catch (error) {
+                console.error('Error deleting admin:', error);
+                showToast(`Failed to delete admin: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // Tab switching
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.getAttribute('data-tab');
+                
+                // Update active tab button
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Update active tab content
+                tabContents.forEach(content => content.classList.remove('active'));
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Toggle password visibility
+        togglePassword.addEventListener('click', function() {
+            const passwordInput = document.getElementById('securityKey');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Change icon
+            const icon = this.querySelector('i');
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        });
+
+        // Security Key Check
+        securityForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const enteredKey = document.getElementById('securityKey').value.trim();
+            
+            if (enteredKey === config.ACCESS_KEY) {
+                securityBox.classList.add('hidden');
+                
+                setTimeout(() => {
+                    securityScreen.style.display = 'none';
+                    mainContent.classList.add('active');
+                    generateResourceOptions();
+                    
+                    // Show success message
+                    showToast('Access granted!', 'success');
+                }, 300);
+            } else {
+                showToast('Invalid access key', 'error');
+                // Shake animation for wrong key
+                securityBox.style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    securityBox.style.animation = '';
+                }, 500);
+            }
+        });
+
+        // User Panel Creation
+        panelForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const userKey = userKeyInput.value.trim();
+            
+            if (!username) {
+                showToast('Please enter a username', 'error');
+                return;
+            }
+
+            if (userKey !== config.USER_CREATION_KEY) {
+                showToast('Invalid user creation key', 'error');
+                return;
+            }
+
+            if (username.includes(' ')) {
+                showToast('Username cannot contain spaces', 'error');
+                return;
+            }
+            
+            // Show loader
+            loader.classList.add('active');
+            createBtn.disabled = true;
+            resultSection.classList.remove('active');
+            
+            try {
+                // Prepare API URL with parameters
+                const apiUrl = new URL(config.USER_API_ENDPOINT);
+                apiUrl.searchParams.append('domain', config.PANEL_DOMAIN);
+                apiUrl.searchParams.append('plta', config.PLTA_KEY);
+                apiUrl.searchParams.append('username', username);
+                apiUrl.searchParams.append('disk', selectedResources.disk);
+                apiUrl.searchParams.append('cpu', selectedResources.cpu);
+                apiUrl.searchParams.append('memory', selectedResources.ram);
+                
+                // Make API request
+                const response = await fetch(apiUrl.toString());
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.status) {
+                    // Success - show results
+                    document.getElementById('resultUsername').textContent = data.credentials.username;
+                    document.getElementById('resultEmail').textContent = data.credentials.email;
+                    document.getElementById('resultPassword').textContent = data.credentials.password;
+                    document.getElementById('panelUrl').textContent = config.PANEL_DOMAIN;
+                    
+                    resultSection.classList.add('active');
+                    showToast('Panel created successfully!', 'success');
+                    
+                    // Reset form
+                    panelForm.reset();
+                    
+                    // Set up login button
+                    loginBtn.onclick = () => {
+                        window.open(`${config.PANEL_DOMAIN}/auth/login`, '_blank');
+                    };
+                } else {
+                    throw new Error(data.message || 'Unknown error creating panel');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast(`Failed to create panel: ${error.message}`, 'error');
+            } finally {
+                loader.classList.remove('active');
+                createBtn.disabled = false;
+                
+                // Scroll to results if successful
+                if (resultSection.classList.contains('active')) {
+                    resultSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+
+        // Admin Panel Creation
+        adminForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('adminUsername').value.trim();
+            const adminKey = adminKeyInput.value.trim();
+            
+            if (!username) {
+                showToast('Please enter an admin username', 'error');
+                return;
+            }
+
+            if (adminKey !== config.ADMIN_CREATION_KEY) {
+                showToast('Invalid admin creation key', 'error');
+                return;
+            }
+            
+            // Show loader
+            adminLoader.classList.add('active');
+            createAdminBtn.disabled = true;
+            adminResultSection.classList.remove('active');
+            
+            try {
+                // Prepare API URL with parameters
+                const apiUrl = new URL(config.ADMIN_API_ENDPOINT);
+                apiUrl.searchParams.append('domain', config.PANEL_DOMAIN);
+                apiUrl.searchParams.append('plta', config.PLTA_KEY);
+                apiUrl.searchParams.append('username', username);
+                
+                // Make API request
+                const response = await fetch(apiUrl.toString());
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.status) {
+                    // Success - show results
+                    document.getElementById('adminResultUsername').textContent = data.data.attributes.username;
+                    document.getElementById('adminResultEmail').textContent = data.data.attributes.email;
+                    document.getElementById('adminResultPassword').textContent = username; // Password is same as username
+                    document.getElementById('adminPanelUrl').textContent = `${config.PANEL_DOMAIN}/admin`;
+                    
+                    adminResultSection.classList.add('active');
+                    showToast('Admin panel created successfully!', 'success');
+                    
+                    // Reset form
+                    adminForm.reset();
+                    
+                    // Set up login button
+                    adminLoginBtn.onclick = () => {
+                        window.open(`${config.PANEL_DOMAIN}/admin`, '_blank');
+                    };
+                } else {
+                    throw new Error(data.message || 'Unknown error creating admin panel');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast(`Failed to create admin panel: ${error.message}`, 'error');
+            } finally {
+                adminLoader.classList.remove('active');
+                createAdminBtn.disabled = false;
+                
+                // Scroll to results if successful
+                if (adminResultSection.classList.contains('active')) {
+                    adminResultSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+
+        // Load admin list
+        loadAdminsBtn.addEventListener('click', loadAdmins);
+
+        // Load server list
+        loadServersBtn.addEventListener('click', loadServers);
+
+        // Delete server modal handlers
+        cancelDeleteBtn.addEventListener('click', () => {
+            deleteModal.classList.remove('active');
+            currentServerToDelete = null;
+            deleteKeyInput.value = '';
+        });
+
+        confirmDeleteBtn.addEventListener('click', async () => {
+            if (!currentServerToDelete) return;
+            
+            const securityKey = deleteKeyInput.value.trim();
+            if (!securityKey) {
+                showToast('Please enter security key', 'error');
+                return;
+            }
+            
+            confirmDeleteBtn.disabled = true;
+            confirmDeleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+            
+            const success = await deleteServer(currentServerToDelete.id, securityKey);
+            
+            if (success) {
+                deleteModal.classList.remove('active');
+                deleteKeyInput.value = '';
+                loadServers(); // Refresh the list
+            }
+            
+            confirmDeleteBtn.disabled = false;
+            confirmDeleteBtn.innerHTML = '<i class="fas fa-trash"></i> Delete Server';
+            currentServerToDelete = null;
+        });
+
+        // Delete admin modal handlers
+        cancelDeleteAdminBtn.addEventListener('click', () => {
+            deleteAdminModal.classList.remove('active');
+            currentAdminToDelete = null;
+            deleteAdminKeyInput.value = '';
+        });
+
+        confirmDeleteAdminBtn.addEventListener('click', async () => {
+            if (!currentAdminToDelete) return;
+            
+            const managementKey = deleteAdminKeyInput.value.trim();
+            if (!managementKey) {
+                showToast('Please enter management key', 'error');
+                return;
+            }
+            
+            confirmDeleteAdminBtn.disabled = true;
+            confirmDeleteAdminBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+            
+            const success = await deleteAdmin(currentAdminToDelete.id, managementKey);
+            
+            if (success) {
+                deleteAdminModal.classList.remove('active');
+                deleteAdminKeyInput.value = '';
+                loadAdmins(); // Refresh the list
+            }
+            
+            confirmDeleteAdminBtn.disabled = false;
+            confirmDeleteAdminBtn.innerHTML = '<i class="fas fa-trash"></i> Delete Admin';
+            currentAdminToDelete = null;
+        });
+
+        // Copy buttons functionality
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('copy-btn') || e.target.closest('.copy-btn')) {
+                const button = e.target.classList.contains('copy-btn') ? e.target : e.target.closest('.copy-btn');
+                const targetId = button.getAttribute('data-target');
+                const textToCopy = document.getElementById(targetId).textContent;
+                
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    showToast('Copied to clipboard!', 'success');
+                    
+                    // Add copied animation
+                    button.innerHTML = '<i class="fas fa-check"></i>';
+                    setTimeout(() => {
+                        button.innerHTML = '<i class="far fa-copy"></i>';
+                    }, 2000);
+                }).catch(err => {
+                    showToast('Failed to copy text', 'error');
+                    console.error('Could not copy text: ', err);
+                });
+            }
+        });
+
+        // Copy all credentials (User Panel)
+        copyAllBtn.addEventListener('click', function() {
+            const credentials = {
+                username: document.getElementById('resultUsername').textContent,
+                email: document.getElementById('resultEmail').textContent,
+                password: document.getElementById('resultPassword').textContent,
+                panelUrl: document.getElementById('panelUrl').textContent
+            };
+            
+            const textToCopy = `Username: ${credentials.username}\nEmail: ${credentials.email}\nPassword: ${credentials.password}\nPanel URL: ${credentials.panelUrl}`;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast('All credentials copied!', 'success');
+                this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-copy"></i> Copy All';
+                }, 2000);
+            }).catch(err => {
+                showToast('Failed to copy credentials', 'error');
+                console.error('Could not copy text: ', err);
+            });
+        });
+
+        // Copy all credentials (Admin Panel)
+        adminCopyAllBtn.addEventListener('click', function() {
+            const credentials = {
+                username: document.getElementById('adminResultUsername').textContent,
+                email: document.getElementById('adminResultEmail').textContent,
+                password: document.getElementById('adminResultPassword').textContent,
+                panelUrl: document.getElementById('adminPanelUrl').textContent
+            };
+            
+            const textToCopy = `Username: ${credentials.username}\nEmail: ${credentials.email}\nPassword: ${credentials.password}\nAdmin URL: ${credentials.panelUrl}`;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showToast('All admin credentials copied!', 'success');
+                this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-copy"></i> Copy All';
+                }, 2000);
+            }).catch(err => {
+                showToast('Failed to copy credentials', 'error');
+                console.error('Could not copy text: ', err);
+            });
+        });
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            toast.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
+            toast.className = 'toast';
+            toast.classList.add(type, 'show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Add shake animation for wrong key
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                20%, 40%, 60%, 80% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            generateResourceOptions();
+        });
+    </script>
+</body>
+</html>
