@@ -6,7 +6,7 @@
     <title>Cloud Panel Manager</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
+    <style>1
         :root {
             --primary-color: #4a6bff;
             --secondary-color: #f8f9fa;
@@ -1508,22 +1508,23 @@
                 const data = await response.json();
                 
                 if (data.status) {
-                    // Success - show results
-                    document.getElementById('resultUsername').textContent = data.credentials.username;
-                    document.getElementById('resultEmail').textContent = data.credentials.email;
-                    document.getElementById('resultPassword').textContent = data.credentials.password;
-                    document.getElementById('panelUrl').textContent = config.PANEL_DOMAIN;
-                    
-                    resultSection.classList.add('active');
-                    showToast('Panel created successfully!', 'success');
-                    
-                    // Reset form
-                    panelForm.reset();
-                    
-                    // Set up login button
-                    loginBtn.onclick = () => {
-                        window.open(`${config.PANEL_DOMAIN}/auth/login`, '_blank');
-                    };
+    // ✅ PERBAIKAN: Gunakan struktur response yang sesuai
+    document.getElementById('resultUsername').textContent = data.user.attributes.username;
+    document.getElementById('resultEmail').textContent = data.user.attributes.email;
+    document.getElementById('resultPassword').textContent = 'changeme123'; // Default password
+    document.getElementById('panelUrl').textContent = `${config.PANEL_DOMAIN}/server/${data.server.attributes.identifier}`;
+    
+    resultSection.classList.add('active');
+    showToast('Panel created successfully!', 'success');
+    
+    // Reset form
+    panelForm.reset();
+    
+    // Set up login button - langsung ke server
+    loginBtn.onclick = () => {
+        window.open(`${config.PANEL_DOMAIN}/server/${data.server.attributes.identifier}`, '_blank');
+    };
+                                   }
                 } else {
                     throw new Error(data.message || 'Unknown error creating panel');
                 }
